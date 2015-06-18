@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="d3.slider/d3.slider.css">
+
+<style>
+    
+    /* Gives axis elements text */
+    .axis text {
+        font: 14px sans-serif;
+    }
+    
+    /* Gives axis elements path, line components */
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+    
+    .overlay {
+        fill: none;
+        pointer-events: all;
+    }
+    
+    #header {
+        font-family: sans-serif;
+        font-size: 28px;
+        text-align: center;
+    }
+    
+    .focus circle {
+        fill: none;
+        stroke: black;
+    }
+    
+    .focus text {
+        font: 14px sans-serif;
+    }
+    
+    svg {
+        /*display: inline-block;*/
+    }
+    
+    .chartdescription {
+        font: 14px sans-serif;
+        float: left;
+        width: 75%;
+        display: block;
+    }
+    
+    .top {
+        font-family: sans-serif;
+        margin: 20px 30px 30px 40px;
+    }
+    
+    #slider1 {
+        margin: 10px;
+        pointer-events: all;
+        /*width:500px;*/
+    }
+    
+    form {
+        font: 14px sans-serif;
+        display: inline-block;
+        float: left;
+    }
+    
+    .leftmargin {
+        width: 15%;
+        float: left; 
+    }
+    
+    .rightmargin {
+        width: 15%;
+        float: right;
+    }
+    
+    .testbox {
+        /*position: fixed;*/
+        width: 22%;
+        float: right;
+        height: .chartdescription.height;
+    }
+    
+    .textbox {
+        /*position: fixed;*/
+        float: left;
+        width: 100%;
+    }
+    
+    p {
+        display: block;
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+        margin-left: 1em;
+        margin-right: 1em;
+        font: 14px sans-serif;
+    }
+    
+    .main {
+        float: left;
+        font: sans-serif;
+        width: 70%;
+    }
+    
+    #textblock1 {
+        background-color: rgba(54,66,74,0.05);
+        display: block;
+    }
+    
+    #textblock2 {
+        display: block;
+    }
+    
+    /*pseudothingies use identifier with colon + something to do something special
+        ex #header:hover can do something on mouse hover */
+     /*
+    #header:hover {
+        color: lightsteelblue;
+    }
+   */
+    /*
+    .overlay:hover {
+        fill: lightsteelblue;
+        opacity: 0.25;
+    }*/
+    /*position: fixed 
+    makes a CSS element remain on the page no matter where/how you scroll */
+    
+</style>
+
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="d3.slider/d3.slider.js"></script>
+
+<body>
+    <head>
+        <div id=topbar><img src="http://www.theicct.org/sites/all/themes/icct/img/logo-hi.png" height=100px></img></div>
+        <div id=header><br>Global On-Road Emissions: Clean Air Knowledgebase<br><br></div>
+    </head>
+    <div class="leftmargin">
+        <script>$(".leftmargin").height($(document).height());</script>
+    </div>
+    <div class="rightmargin">
+        <script>$(".rightmargin").height($(document).height());</script>
+    </div>
+    <div class="main">
+        <div class="text">
+            <div id="textblock1">
+                <br><p>Motor vehicle emissions harm public health and the environment. The ICCT estimates that exposure to vehicle emissions in the year 2005 produced at least 242,000 global early deaths. Emissions of fine particulate matter, ozone-precursors, air toxics and other harmful pollutants also produce environmental damage in the form of crop fertility losses and near-term climate warming.</p><br>
+
+    <p>Since the 1960s, advances in emission control technologies have enabled dramatic reductions in motor vehicle emissions. For example, the three-way catalyst coupled with the phase-out of leaded gasoline produces a 90 percent reduction in carbon monoxide and volatile organic compounds. In diesel vehicles, the diesel particulate filter coupled with the near phase-out of fuel sulfur content produces up to a 99 percent reduction in black carbon emissions and a 95 percent reduction in fine particulate matter.</p><br>
+
+    <p>Best practices in vehicle emissions control have included emission standards for new vehicle engines, fuel quality standards, programs to repair or replace the highest emitting vehicles in the fleet, as well as programs to verify and enforce these regulations. In some countries such programs now extend to every class of mobile engine such as marine vessels, locomotives, construction equipment, and others.</p><br>
+
+    <p>Future growth in vehicle emissions will occur in countries undergoing rapid economic development that have not adopted best practice policies. To forestall the public health and environmental implications of this growth, the ICCT Clean Air Program is providing technical research and policy guidance to support the widespread adoption of international best practices. This could lead to a 75 percent reduction in premature deaths from vehicle emissions exposure in 2030.</p><br>
+                </div>
+        </div>
+        <div class="top">
+            <div id="slidername" style="display: none">Euro VI Year</div>
+            <div id="slider1"></div>
+        </div>
+        <div class="chartbox">
+            <div class="testbox">
+                <div class="textbox">
+                    <text id="textbox"></text>
+                    <p>The chart to the left shows a sample of outputs from <a href="http://theicct.org/global-transportation-roadmap-model">the ICCT Roadmap Model</a>.</p>
+
+                        <p>Burning diesel or gasoline creates a variety of unwanted chemical byproducts that pollute the air, including the ones listed under the chart. These pollutants have significant negative impacts on both local air quality, as contributing to particlulate pollution or ground-level ozone formation, and on the global climate, as both short- and long-lived climate forcers.</p>
+
+    <p>Starting with catalytic converters on cars in the 1970s, more and more vehicles have included devices to capture and destroy these pollutants before they exit the tailpipe, resulting in significant improvements in air quality. However, with vehicle activity continually increasing, current regulations cannot maintain this level of improved air quality, and by mid-century emissions globally are likely to exceed their levels at the start of the century.</p>
+                </div>
+            </div>
+            <div class="chartdescription">
+                <p  style="text-align:center"><b><font size="3em">Pollutant Emissions by Region, Vehicle Type, and Fuel Type</font></b></p>
+                <div class="charts">
+                    <svg class="chart" id="pmchart"></svg>
+                </div>
+                <p></p>
+                <form class="form" id="regionselect" style="width: 25%">
+                    <p style="text-align:center"><b>Region</b></p>
+                </form>
+                <form class="form" id="pollutantselect" style="width: 25%">
+                    <p style="text-align:center"><b>Pollutant<br></b></p>
+                </form>
+                <form class="form" id="vehicleselect" style="width: 25%">
+                    <p style="text-align:center"><b>Vehicle Type<br></b></p>
+                </form>
+                <form class="form" id="fuelselect" style="width: 25%">
+                    <p style="text-align:center"><b>Fuel Type<br></b></p>
+                </form>
+            </div>
+        </div>
+        <script src="globalemissions.js"></script>
+    </div>
+
+        <div class="main" id="main2">
+        <script>$(".leftmargin").height($(document).height());</script>
+        <script>$(".rightmargin").height($(document).height());</script>
+        <div class="text">
+            <div id="textblock2">
+                <br><p>This is where a second block of text will go. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tristique lectus et neque vulputate interdum. Proin quis sodales risus, ac hendrerit lorem. Aliquam luctus, tortor sed ultricies bibendum, justo velit fringilla ex, a eleifend dui libero quis erat. Nam ac enim vitae odio malesuada tempor. Mauris consequat nibh quis tellus pulvinar, maximus ultrices velit ultrices. Nam nec lectus purus. Phasellus sed volutpat odio. Vivamus gravida dictum sapien et accumsan. Ut vel quam et lectus consequat interdum. Phasellus imperdiet id sapien vel placerat. Vivamus aliquet imperdiet elementum. Maecenas venenatis quam non felis ultrices, sit amet vestibulum nulla aliquam. Vestibulum at felis a urna congue rhoncus. Proin ut ex est.</p><br>
+
+<p>Integer sodales sem eget mi euismod tempor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Proin a tempus risus. Duis efficitur tellus sed arcu iaculis ullamcorper. Cras nec sapien nec enim euismod viverra a vel dolor. Maecenas vel eros facilisis, luctus orci et, lobortis justo. Nunc viverra quam id dolor consequat, et congue massa feugiat. Phasellus nec euismod massa. Cras eget nulla ex. Cras vel nunc elit. Fusce tincidunt est non ligula cursus iaculis.</p><br>
+
+<p>Duis tristique commodo dapibus. Quisque maximus turpis in eros pulvinar, et commodo augue feugiat. Praesent elementum, neque sed sagittis lacinia, justo nulla vestibulum sem, nec varius turpis nibh a sapien. Pellentesque sapien neque, mattis a ex vitae, posuere malesuada nulla. Donec eget interdum odio. Fusce ac mauris semper, malesuada sem vel, pretium sapien. Cras sem dolor, pretium in varius quis, rhoncus non ligula. Nunc ac ligula sit amet ante tempus congue. Maecenas sit amet dui eros. Etiam blandit est neque. Mauris molestie lorem at porttitor rutrum.</p><br>
+
+<p>Proin venenatis lacus felis, nec feugiat tellus dignissim vitae. Praesent dapibus, felis eget egestas rutrum, mauris urna semper dui, sit amet tincidunt enim lacus ut erat. Fusce bibendum ipsum sit amet felis laoreet, non facilisis ante ornare. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam erat volutpat. Nam sollicitudin odio et ipsum laoreet semper. Proin hendrerit sollicitudin volutpat. Maecenas dapibus tincidunt tellus, eu aliquet massa egestas eget.</p><br>
+
+                </div>
+        </div>
+        <div class="testbox">
+                <div class="textbox">
+                    <text id="textbox"></text>
+                    <p>The chart to the left shows some of the assumptions in <a href="http://theicct.org/global-transportation-roadmap-model">the ICCT Roadmap Model</a>.</p>
+
+                        <p>Vehicle kilometers traveled (VKT), and the breakdown of VKT by the emission control standard of the vehicle</p>
+
+                </div>
+            </div>
+        <div class="chartdescription">
+                <p  style="text-align:center"><b><font size="3em">VKT by Region, Vehicle Type, Fuel Type, and Emission Standard</font></b></p>
+                <div class="charts">
+                    <img width=600px height=300px src="chartfiller.png"></img>
+                </div>
+                <p></p>
+                <form class="form" id="regionselect" style="width: 32%">
+                    <p style="text-align:center"><b>Region</b></p>
+                    <svg width=150px height=250px></svg>
+                </form>
+                <form class="form" id="vehicleselect" style="width: 32%">
+                    <p style="text-align:center"><b>Vehicle Type<br></b></p>
+                    <svg width=150px height=200px></svg>
+                </form>
+                <form class="form" id="fuelselect" style="width: 32%">
+                    <p style="text-align:center"><b>Fuel Type<br></b></p>
+                    <svg width=150px height=100px></svg>
+                </form>
+            </div>
+    </div>
+</body>
+<svg class="chart" id="vktpctchart" width=600px height=300px></svg>
