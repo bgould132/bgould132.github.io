@@ -58,53 +58,28 @@ Here are a list of key assumptions made in the ICCT Roadmap Model that are carri
         fuel = "Diesel",
         demain = [], // A holder for domain values
         data = [], // The output of the emissions calculations, based on selected region, pollutant, vehicle, and fuel
+        data2 = [],
         ldvgases, ldvdieseles, busgases, busdieseles, twogases, twodieseles, threegases, threedieseles, lhdtgases, lhdtdieseles, mhdtgases, mhdtdieseles, hhdtgases, hhdtdieseles, //vehicle-fuel emission standards
         yearproduced, index,
         globalvkt = {},
         globalvktpctbyage = {},
         globalemissions = {},
+        globalvktbystd = {},
         vehicleef = {},
         vehicleesyear = {},
         years = [],
+        focus2, linefunc2,
         focus, lineFunc, // These draw the circle & the line of the chart
-        euvidate = 2025,
+        euvidate = 2025, //old
+        emissionschart, vktchart,
         margin, width, height, // These define the area of the chart
-        x, y, // These are d3 variables setting range & domain of axes
-        xAxis, yAxis, chart, // These work to make the chart and x & y axes
+        x, y, x2, y2, // These are d3 variables setting range & domain of axes
+        xAxis, yAxis, xAxis2, yAxis2, chart, // These work to make the chart and x & y axes
         parseDate, bisectDate, dateToYear, // These are date operators
         regionList, pollutantList, vehicleList, fuelList, standardList, // These are helper arrays
-        PollutantEmissionFactors, EmissionLevel, Emissions2, FuelEFs, OtherFuelEFs, VehicleObj, RegionObj, FuelObj; // Constructors
+        PollutantEmissionFactors, EmissionLevel, VKTLevel, Emissions2, FuelEFs, OtherFuelEFs, VehicleObj, RegionObj, FuelObj; // Constructors
 
-    //Chart Formation
-    //********************************************//
-    //This defines the chart (width and height)
-    margin = {top: 40, right: 30, bottom: 30, left: 40};
-    width = $(document).width();
-    width = 0.55*width - margin.left - margin.right;
-    height = 200 - margin.top - margin.bottom;
-
-    x = d3.time.scale()
-        .range([0, width]); //sets the pixel range of the x-axis
-
-    y = d3.scale.linear()
-        .range([height, 0]); //sets the pixel range of the y-axis
-
-    xAxis = d3.svg.axis()
-        .scale(x)
-        .orient("bottom")
-        .ticks(5);
-
-    yAxis = d3.svg.axis()
-        .scale(y)
-        .orient("left")
-        .ticks(5);
-
-    chart = d3.select(".chart")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
+   
     //Date operators
     parseDate = d3.time.format("%d-%b-%Y").parse;
     bisectDate = d3.bisector(function (d) { return d.Horiz; }).left;
@@ -142,6 +117,11 @@ Here are a list of key assumptions made in the ICCT Roadmap Model that are carri
     EmissionLevel = function EmissionLevel(year) {
         this.Horiz = years[year];
         this.Vertic = globalemissions[vehicle][fuel][region][year][pollutant].toFixed(2);
+    };
+    
+    VKTLevel = function VKTLevel(year) {
+        this.Horiz = years[year];
+        this.Vertic = globalvktbystd[vehicle][fuel][region][year][5].toFixed(3);
     };
     
     //rename
@@ -219,17 +199,51 @@ Here are a list of key assumptions made in the ICCT Roadmap Model that are carri
     //Helper Functions
     //****************************************************************************************//
     
+    function drawCharts(chartselect, widthfraction) {
+     //Chart Formation
+    //********************************************//
+    //This defines the chart (width and height)
+        margin = {top: 50, right: 30, bottom: 30, left: 40};
+        width = $(document).width();
+        width = widthfraction * width - margin.left - margin.right;
+        height = 250 - margin.top - margin.bottom;
+
+        x = d3.time.scale()
+            .range([0, width]); //sets the pixel range of the x-axis
+
+        y = d3.scale.linear()
+            .range([height, 0]); //sets the pixel range of the y-axis
+
+        xAxis = d3.svg.axis()
+            .scale(x)
+            .orient("bottom")
+            .ticks(5);
+
+        yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("left")
+            .ticks(5);
+
+        chart = d3.select("#" + chartselect)
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    }
+    
     function dataCalc() {
         len = vehicleList.length; //i
         len2 = fuelList.length; //j
         len3 = regionList.length; //k
         len4 = 51; //m
         len5 = pollutantList.length; //n
+        len6 = globalvktpctbyage[vehicleList[0]][regionList[0]].length; //p
         
         for (i = 0; i < (len - 1); i++) { //For each vehicle type
             for (j = 0; j < (len2 - 1); j++) { //For each fuel type
                 for (k = 0; k < (len3 - 1); k++) { //For each region
                     for (m = 0; m < len4; m++) { //For each year (0-50)
+                        fleetVKTbystd(m); //Fleet VKT by euro standard calculations
                         for (n = 0; n < len5; n++) { //For each pollutant
                             globalemissions[vehicleList[i]][fuelList[j]][regionList[k]][m][pollutantList[n]] = fleetEF(m) * globalvkt[vehicleList[i]][fuelList[j]][regionList[k]][m];
                         }
@@ -267,7 +281,7 @@ Here are a list of key assumptions made in the ICCT Roadmap Model that are carri
         }
         
         //Check this calculation
-        //Summing across vehicles to get all vehicle:
+        //Summing across vehicles to get all vehicles:
         for (j = 0; j < len2; j++) {
             for (k = 0; k < len3; k++) {
                 for (m = 0; m < len4; m++) {
@@ -280,12 +294,50 @@ Here are a list of key assumptions made in the ICCT Roadmap Model that are carri
             }
         }
         
-        dataRecalc();
+        //Summing across regions (within each fuel type within each vehicle type) to get global emissions:
+        for (i = 0; i < (len - 1); i++) {
+            for (j = 0; j < (len2 - 1); j++) {
+                for (m = 0; m < len4; m++) {
+                    for (p = 0; p < len6; p++) {
+                        for (k = 0; k < (len3 - 1); k++) {
+                            globalvktbystd[vehicleList[i]][fuelList[j]][regionList[(len3 - 1)]][m][p] += globalvktbystd[vehicleList[i]][fuelList[j]][regionList[k]][m][p];
+                        }
+                    }
+                }
+            }
+        }
+        
+        //Summing across fuel types (within each vehicle type) to get all fuel emissions:
+        for (i = 0; i < (len - 1); i++) {
+            for (k = 0; k < len3; k++) {
+                for (m = 0; m < len4; m++) {
+                    for (p = 0; p < len6; p++) {
+                        for (j = 0; j < (len2 - 1); j++) {
+                            globalvktbystd[vehicleList[i]][fuelList[(len2 - 1)]][regionList[k]][m][p] += globalvktbystd[vehicleList[i]][fuelList[j]][regionList[k]][m][p];
+                        }
+                    }
+                }
+            }
+        }
+        
+         //Summing across vehicles to get all vehicles:
+        for (j = 0; j < len2; j++) {
+            for (k = 0; k < len3; k++) {
+                for (m = 0; m < len4; m++) {
+                    for (p = 0; p < len6; p++) {
+                        for (i = 0; i < (len - 1); i++) {
+                            globalvktbystd[vehicleList[(len - 1)]][fuelList[j]][regionList[k]][m][p] += globalvktbystd[vehicleList[i]][fuelList[j]][regionList[k]][m][p];
+                        }
+                    }
+                }
+            }
+        }
     }
     
     function dataRecalc() {
         for (k = 0; k < 51; k++) {
             data[k] = new EmissionLevel(k);
+            data2[k] = new VKTLevel(k);
         }
     }
     
@@ -676,6 +728,7 @@ Here are a list of key assumptions made in the ICCT Roadmap Model that are carri
         globalvkt = new VehicleObj();
         globalemissions = new VehicleObj();
         vehicleesyear = new VehicleObj();
+        globalvktbystd = new VehicleObj();
         
         len = vehicleList.length;
         len2 = fuelList.length;
@@ -686,6 +739,7 @@ Here are a list of key assumptions made in the ICCT Roadmap Model that are carri
             globalvkt[vehicleList[i]] = new FuelObj();
             globalemissions[vehicleList[i]] = new FuelObj();
             vehicleesyear[vehicleList[i]] = new FuelObj();
+            globalvktbystd[vehicleList[i]] = new FuelObj();
         }
         
         len4 = 51;
@@ -694,6 +748,7 @@ Here are a list of key assumptions made in the ICCT Roadmap Model that are carri
                 for (k = 0; k < len3; k++) {
                     for (m = 0; m < len4; m++) {
                         globalemissions[vehicleList[i]][fuelList[j]][regionList[k]][m] = new Emissions2();
+                        globalvktbystd[vehicleList[i]][fuelList[j]][regionList[k]][m] = [0, 0, 0, 0, 0, 0, 0, 0];
                     }
                 }
             }
@@ -751,7 +806,7 @@ Here are a list of key assumptions made in the ICCT Roadmap Model that are carri
     function mouseout() {
         focus.style("display", "none");
         chart.select(".xlegend").text("Year");
-        chart.select(".ylegend").text("PM Emissions (ktons)");
+        chart.select(".ylegend").text(pollutant + " Emissions (ktons)");
     }
 
     //For when the mouse moves around the chart. It gets the mouse position & computes the nearest X value and corresponding Y value.
@@ -764,50 +819,61 @@ Here are a list of key assumptions made in the ICCT Roadmap Model that are carri
         focus.attr("transform", "translate(" + x(d.Horiz) + "," + y(d.Vertic) + ")"); //Moves circle
         focus.select("text").text(d.Vertic); //Adds text to focus circle
         chart.select(".xlegend").text("Year: " + dateToYear(d.Horiz)); //Adds year to x legend
-        chart.select(".ylegend").text("PM Emissions (ktons): " + d.Vertic); //Adds emissions to y legend
+        chart.select(".ylegend").text(pollutant + " Emissions (ktons): " + d.Vertic); //Adds emissions to y legend
     }
 
     //Creates and draws the line graph (after erasing any previous graph)
     function lineUpdate() {
         //Removes existing graphlines
-        d3.select(".graphline").remove();
+        //chart.select(".graphline").remove();
 
         //For computing the line
         lineFunc = d3.svg.line()
             .x(function (d) { return x(d.Horiz); })
             .y(function (d) { return y(d.Vertic); })
             .interpolate('linear'); //spiky instead of curvy line (use basis for curvy)
-
+        
+        len = data.length;
+        for (j = 0; j < len; j++) {
+            demain[j] = +data[j].Vertic;
+        }
+        
         //For adding the line
         chart.append('svg:path')
-            .attr('class', 'graphline')
-            .attr('d', lineFunc(data))
-            .attr('stroke', 'steelblue') //Need to figure out how to indicate data vs. model
+            .attr('class', 'graphline').attr('stroke', 'steelblue') //Need to figure out how to indicate data vs. model
             .attr('stroke-width', 2)
             .attr('fill', 'none');
+        chart.transition().duration(750).select(".graphline").attr('d', lineFunc(data));
+            
+        y.domain([0, d3.max(demain)]);
+        
+        chart.transition().duration(750).transition().select(".graphline").attr('d', lineFunc(data));
+        chart.transition().duration(750).transition().select(".y.axis").call(yAxis);
+            
     }
 
     function chartChange() {
         dataRecalc();
-
+        /*
         len = data.length;
         for (j = 0; j < len; j++) {
             demain[j] = +data[j].Vertic;
         }
         y.domain([0, d3.max(demain)]);
-        d3.select(".y.axis").transition().duration(750).call(yAxis);
+        chart.select(".y.axis").transition().duration(750).call(yAxis);*/
         lineUpdate();
+        
     }
 
     function regionChange() {
         region = this.value;
-        d3.select(".regionname").text("Region: " + region);
+        chart.select(".regionname").text("Region: " + region);
         chartChange();
     }
 
     function pollutantChange() {
         pollutant = this.value;
-        d3.select(".ylegend").text(pollutant + " Emissions (ktons)");
+        chart.select(".ylegend").text(pollutant + " Emissions (ktons)");
         chartChange();
     }
 
@@ -912,17 +978,18 @@ Here are a list of key assumptions made in the ICCT Roadmap Model that are carri
         //Same sort of stuff as X axis
             .append("text")
             .attr("class", "ylegend")
-            .attr("y", -20) // moves it out away from the axis line. 
-            .attr("x", 120) // moves it downwards away from the top of the graph
+            .attr("y", -40)
+            .attr("x", 0)
             .attr("dy", ".71em")
-            .style("text-anchor", "end")
+            .style("text-anchor", "start")
             .text(pollutant + " Emissions (ktons)");
 
         //For adding the region name
         chart.append("text")
             .attr("class", "regionname")
-            .attr("y", 0)
+            .attr("y", -35)
             .attr("x", width - 160)
+            .attr("dy", ".71em")
             .text("Region: " + region);
 
         //Creates the tracking circle
@@ -947,6 +1014,115 @@ Here are a list of key assumptions made in the ICCT Roadmap Model that are carri
             .on("mouseover", function () { focus.style("display", null); })
             .on("mouseout", mouseout)
             .on("mousemove", mousemove);
+    }
+    
+    function initVKTchart() {
+        margin = {top: 50, right: 30, bottom: 30, left: 40};
+        width = $(document).width();
+        width = 0.35 * width - margin.left - margin.right;
+        height = 250 - margin.top - margin.bottom;
+
+        x2 = d3.time.scale()
+            .range([0, width]); //sets the pixel range of the x-axis
+
+        y2 = d3.scale.linear()
+            .range([height, 0]); //sets the pixel range of the y-axis
+
+        xAxis2 = d3.svg.axis()
+            .scale(x2)
+            .orient("bottom")
+            .ticks(5);
+
+        yAxis2 = d3.svg.axis()
+            .scale(y2)
+            .orient("left")
+            .ticks(5);
+
+        vktchart = d3.select("#vktchart")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        
+        //sets the value range (domain) of the x-axis
+        x2.domain([years[0], years[(years.length - 1)]]);
+        //sets the value range (domain) of the y-axis
+        len = data2.length;
+        for (j = 0; j < len; j++) {
+            demain[j] = +data2[j].Vertic;
+        }
+        y2.domain([0, d3.max(demain)]);
+        //y.domain(d3.extent(demain));
+
+        //To move xAxis to desired location & call it:
+        vktchart.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")") //Moves it down to the bottom of the graph.
+            .call(xAxis2)
+            .append("text")
+            .attr("class", "xlegend")  //So it can be called again. May need to change to id for later graphs
+            .attr("x", width - 10) // moves it out from the origin, -10 keeps it from going too far
+            .attr("y", -5) // moves it up above the x-axis (inverted y scale for svg)
+            .attr("dx", ".71em")  //Sets width of x axis legend text. em is a relative value, proportional to browser default size (14px?)
+            .style("text-anchor", "end")  //Anchors the text to the end of the axis
+            .text("Year");
+
+        //For adding the Y axis
+        vktchart.append("g")
+            .attr("class", "y2 axis")
+            .call(yAxis2)
+            .append("text")
+            .attr("class", "ylegend")
+            .attr("y", -40)
+            .attr("x", 0)
+            .attr("dy", ".71em")
+            .style("text-anchor", "start")
+            .text("VKT at Euro 6");
+            
+        //For adding the region name
+        vktchart.append("text")
+            .attr("class", "regionname")
+            .attr("y", -35)
+            .attr("x", width - 160)
+            .attr("dy", ".71em")
+            .text("Region: " + region);
+
+        //Creates the tracking circle
+        focus2 = vktchart.append("g")
+            .attr("class", "focus") //The variable is called focus, and also has a class of focus.
+            .style("display", "none"); //Does not display initially
+
+        focus2.append("circle")  //Creates the circle
+            .attr("r", 4.5);
+
+        //Creates location for text to go.
+        focus2.append("text")
+            .attr("x", -10)
+            .attr("y", -15)
+            .attr("dy", ".35em");
+
+        //Adds a rectangular overlay on top of the vktchart to detect mouse events
+        vktchart.append("rect")
+            .attr("class", "overlay")
+            .attr("width", width)
+            .attr("height", height)
+            .on("mouseover", function () { focus2.style("display", null); })
+            .on("mouseout", function () { focus2.style("display", "none");});
+            //.on("mousemove", mousemove);
+        
+        //For computing the line
+        linefunc2 = d3.svg.line()
+            .x(function (d) { return x2(d.Horiz); })
+            .y(function (d) { return y2(d.Vertic); })
+            .interpolate('linear'); //spiky instead of curvy line (use basis for curvy)
+
+        //For adding the line
+        vktchart.append('svg:path')
+            .attr('class', 'graphline')
+            .attr('d', linefunc2(data2))
+            .attr('stroke', 'steelblue') //Need to figure out how to indicate data vs. model
+            .attr('stroke-width', 2)
+            .attr('fill', 'none');
     }
     
     function vktPctByAge(ldv, hdt, mc, share) {
@@ -994,7 +1170,6 @@ Here are a list of key assumptions made in the ICCT Roadmap Model that are carri
     }
     
     function fleetEF(year) {
-        len6 = globalvktpctbyage[vehicleList[0]][regionList[0]].length;
         sum = 0;
         
         //Check this calculation
@@ -1003,41 +1178,31 @@ Here are a list of key assumptions made in the ICCT Roadmap Model that are carri
             index = 0;
             while ((yearproduced > vehicleesyear[vehicleList[i]][fuelList[j]][regionList[k]][index]) && (vehicleesyear[vehicleList[i]][fuelList[j]][regionList[k]][index] !== 0)) {
                 index++;
-                //d3.select("#textbox").text(vehicleesyear[vehicleList[i]][fuelList[j]][regionList[k]][index]); //debug
             }
             sum += vehicleef[vehicleList[i]][fuelList[j]][pollutantList[n]][standardList[index]] * globalvktpctbyage[vehicleList[i]][regionList[k]][p];
-            //d3.select("#textbox").text(sum + " " + p); //debug
         }
         return sum;
     }
     
+    function fleetVKTbystd(year) {
+        //Check this calculation
+        for (p = 0; p < len6; p++) {
+            yearproduced = (year - p) + 2000;
+            index = 0;
+            while ((yearproduced > vehicleesyear[vehicleList[i]][fuelList[j]][regionList[k]][index]) && (vehicleesyear[vehicleList[i]][fuelList[j]][regionList[k]][index] !== 0)) {
+                index++;
+            }
+            globalvktbystd[vehicleList[i]][fuelList[j]][regionList[k]][m][index] += globalvkt[vehicleList[i]][fuelList[j]][regionList[k]][m] * globalvktpctbyage[vehicleList[i]][regionList[k]][p];
+        }
+    }
+    
     function resize() {
-        width = $(document).width();
-        width = 0.55 * width - margin.left - margin.right;
+        d3.selectAll("#emissionschart").selectAll("g").remove();
         
-        // reset x range
-        x.range([0, width]);
-        
-        xAxis = d3.svg.axis()
-            .scale(x)
-            .orient("bottom")
-            .ticks(5);
-
-        yAxis = d3.svg.axis()
-            .scale(y)
-            .orient("left")
-            .ticks(5);
-        
-        chart.remove();
-
-        chart = d3.select(".chart")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        
+        drawCharts("emissionschart", 0.55);
         chartInit();
         lineUpdate();
+        //repeat for other charts
     }
     //End Helper Functions
     //****************************************************************************************//
@@ -1046,6 +1211,7 @@ Here are a list of key assumptions made in the ICCT Roadmap Model that are carri
     //Program Core
     //****************************************************************************************//
     d3.csv("csv/VKT Share by Age.csv", function (error, vktshare) {
+        chart = d3.select("#emissionschart");
         
         dataInit();
         
@@ -1180,22 +1346,17 @@ Here are a list of key assumptions made in the ICCT Roadmap Model that are carri
                                                                                                 years[i] = parseDate("1-Jan-" + (i + 2000).toString());
                                                                                             }
                                                                                             
-                                                                                            //sliderInit();
                                                                                             formInit();
                                                                                             dataCalc();
+                                                                                            dataRecalc();
+                                                                                            
+                                                                                            initVKTchart();
+                                                                                            
+                                                                                            drawCharts("emissionschart", 0.55);
                                                                                             chartInit();
                                                                                             lineUpdate();
                                                                                             
-                                                                                            i = 0;
-                                                                                            j = 0;
-                                                                                            k = 0;
-                                                                                            m = 0;
-                                                                                            n = 0;
-                                                                                            p = 0;
-                                                                                            index = 1;
-                                                                                            //fleetEF(7);
-                                                                                            //d3.select("#textbox").text(globalvktpctbyage[vehicleList[i]][regionList[k]][p]); //debug
-                                                                                            //d3.select("#textbox").text(fleetEF(50)); //debug
+                                                                                            
                                                                                         });
                                                                                     });
                                                                                 });
@@ -1222,7 +1383,7 @@ Here are a list of key assumptions made in the ICCT Roadmap Model that are carri
     d3.select(window).on('resize', resize);
 
 /*Debugging tool: 
-        d3.select("#textbox").text(globalHHDTVKTpctbyage[0]["Brazil"]); //debug
+        d3.select(".debug").text(globalHHDTVKTpctbyage[0]["Brazil"]); //debug
 */
 }());
 
