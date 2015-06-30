@@ -65,7 +65,7 @@
 
     //Program core
     //********************************************//
-    d3.csv("csv/Annual Deaths.csv", function (error, input) {
+    d3.csv("http://bgould132.github.io/csv/Annual Deaths.csv", function (error, input) {
         
         for (i = 0; i < years.length; i++) {
             data[i] = {};

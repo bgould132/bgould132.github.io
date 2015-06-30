@@ -1210,7 +1210,7 @@ Here are a list of key assumptions made in the ICCT Roadmap Model that are carri
 
     //Program Core
     //****************************************************************************************//
-    d3.csv("csv/VKT Share by Age.csv", function (error, vktshare) {
+    d3.csv("http://bgould132.github.io/csv/VKT Share by Age.csv", function (error, vktshare) {
         chart = d3.select("#emissionschart");
         
         dataInit();
@@ -1270,27 +1270,27 @@ Here are a list of key assumptions made in the ICCT Roadmap Model that are carri
             }
         }
             
-        d3.csv("csv/LDV VKT by Country.csv", function (error, ldvvkt) {
-            d3.csv("csv/Bus VKT by Country.csv", function (error, busvkt) {
-                d3.csv("csv/TwoWheeler VKT by Country.csv", function (error, twovkt) {
-                    d3.csv("csv/ThreeWheeler VKT by Country.csv", function (error, threevkt) {
-                        d3.csv("csv/LHDT VKT by Country.csv", function (error, lhdtvkt) {
-                            d3.csv("csv/MHDT VKT by Country.csv", function (error, mhdtvkt) {
-                                d3.csv("csv/HHDT VKT by Country.csv", function (error, hhdtvkt) {
-                                    d3.csv("csv/LDV Gasoline Pct.csv", function (error, ldvgas) {
-                                        d3.csv("csv/Bus Gasoline Pct.csv", function (error, busgas) {
-                                            d3.csv("csv/TwoWheeler Gasoline Pct.csv", function (error, twogas) {
-                                                d3.csv("csv/ThreeWheeler Gasoline Pct.csv", function (error, threegas) {
-                                                    d3.csv("csv/LHDT Gasoline Pct.csv", function (error, lhdtgas) {
-                                                        d3.csv("csv/MHDT Gasoline Pct.csv", function (error, mhdtgas) {
-                                                            d3.csv("csv/HHDT Gasoline Pct.csv", function (error, hhdtgas) {
-                                                                d3.csv("csv/LDV Diesel Pct.csv", function (error, ldvdiesel) {
-                                                                    d3.csv("csv/Bus Diesel Pct.csv", function (error, busdiesel) {
-                                                                        d3.csv("csv/TwoWheeler Diesel Pct.csv", function (error, twodiesel) {
-                                                                            d3.csv("csv/ThreeWheeler Diesel Pct.csv", function (error, threediesel) {
-                                                                                d3.csv("csv/LHDT Diesel Pct.csv", function (error, lhdtdiesel) {
-                                                                                    d3.csv("csv/MHDT Diesel Pct.csv", function (error, mhdtdiesel) {
-                                                                                        d3.csv("csv/HHDT Diesel Pct.csv", function (error, hhdtdiesel) {
+        d3.csv("http://bgould132.github.io/csv/LDV VKT by Country.csv", function (error, ldvvkt) {
+            d3.csv("http://bgould132.github.io/csv/Bus VKT by Country.csv", function (error, busvkt) {
+                d3.csv("http://bgould132.github.io/csv/TwoWheeler VKT by Country.csv", function (error, twovkt) {
+                    d3.csv("http://bgould132.github.io/csv/ThreeWheeler VKT by Country.csv", function (error, threevkt) {
+                        d3.csv("http://bgould132.github.io/csv/LHDT VKT by Country.csv", function (error, lhdtvkt) {
+                            d3.csv("http://bgould132.github.io/csv/MHDT VKT by Country.csv", function (error, mhdtvkt) {
+                                d3.csv("http://bgould132.github.io/csv/HHDT VKT by Country.csv", function (error, hhdtvkt) {
+                                    d3.csv("http://bgould132.github.io/csv/LDV Gasoline Pct.csv", function (error, ldvgas) {
+                                        d3.csv("http://bgould132.github.io/csv/Bus Gasoline Pct.csv", function (error, busgas) {
+                                            d3.csv("http://bgould132.github.io/csv/TwoWheeler Gasoline Pct.csv", function (error, twogas) {
+                                                d3.csv("http://bgould132.github.io/csv/ThreeWheeler Gasoline Pct.csv", function (error, threegas) {
+                                                    d3.csv("http://bgould132.github.io/csv/LHDT Gasoline Pct.csv", function (error, lhdtgas) {
+                                                        d3.csv("http://bgould132.github.io/csv/MHDT Gasoline Pct.csv", function (error, mhdtgas) {
+                                                            d3.csv("http://bgould132.github.io/csv/HHDT Gasoline Pct.csv", function (error, hhdtgas) {
+                                                                d3.csv("http://bgould132.github.io/csv/LDV Diesel Pct.csv", function (error, ldvdiesel) {
+                                                                    d3.csv("http://bgould132.github.io/csv/Bus Diesel Pct.csv", function (error, busdiesel) {
+                                                                        d3.csv("http://bgould132.github.io/csv/TwoWheeler Diesel Pct.csv", function (error, twodiesel) {
+                                                                            d3.csv("http://bgould132.github.io/csv/ThreeWheeler Diesel Pct.csv", function (error, threediesel) {
+                                                                                d3.csv("http://bgould132.github.io/csv/LHDT Diesel Pct.csv", function (error, lhdtdiesel) {
+                                                                                    d3.csv("http://bgould132.github.io/csv/MHDT Diesel Pct.csv", function (error, mhdtdiesel) {
+                                                                                        d3.csv("http://bgould132.github.io/csv/HHDT Diesel Pct.csv", function (error, hhdtdiesel) {
                                                                                             len = vehicleList.length; //i
                                                                                             len2 = ldvvkt.length; //k
                                                                                             len3 = regionList.length; //j
